@@ -12,6 +12,9 @@ export interface AuthenticatedRequest extends Request {
   requestId: string;
 }
 
+export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+export type FoodLogStatus = "pending" | "completed" | "failed";
+
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -134,4 +137,32 @@ export interface LogJobData {
   logId: string;
   userId: string;
   text: string;
+}
+
+export interface DetectedFood {
+  name: string;
+  estimatedPortion: string;
+  calories: number | null;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  confidence: number | null;
+}
+
+export interface FoodAnalysisResult {
+  detectedFoods: DetectedFood[];
+  totalCalories: number | null;
+  totalProtein: number | null;
+  totalCarbs: number | null;
+  totalFat: number | null;
+  notes?: string | null;
+}
+
+export interface FoodCorrectionData extends FoodAnalysisResult {}
+
+export interface FoodLogJobData {
+  foodLogId: string;
+  userId: string;
+  imagePath: string;
+  mimeType: string;
 }

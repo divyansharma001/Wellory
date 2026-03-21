@@ -40,6 +40,6 @@ coverage/
 Thumbs.db
 
 # Database
-drizzle/
+uploads/
 
 .claude*

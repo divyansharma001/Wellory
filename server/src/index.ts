@@ -3,8 +3,10 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { toNodeHandler } from "better-auth/node";
+import path from "node:path";
 import { auth } from "./lib/auth.js";
 import "./workers/log.worker.js";
+import "./workers/food.worker.js";
 import { config, validateConfig } from "./config/index.js";
 import { vectorService } from "./lib/qdrant.js";
 import { apiRouter } from "./routes/index.js";
@@ -26,6 +28,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });

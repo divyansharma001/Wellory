@@ -65,5 +65,11 @@ export const vectorService = {
     } catch (error) {
       return null;
     }
+  },
+
+  async deletePoint(collectionName: string, id: string) {
+    return client.delete(collectionName, {
+      points: [id],
+    });
   }
 };

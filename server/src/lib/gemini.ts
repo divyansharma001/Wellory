@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { config } from "../config/index.js";
+import type { FoodAnalysisResult } from "../types/index.js";
 import { AIServiceError } from "../utils/errors.js";
 import { logger } from "../utils/logger.js";
 
@@ -17,6 +18,41 @@ const factExtractionModel = genAI.getGenerativeModel({
     model: config.gemini.chatModel,
     generationConfig: { responseMimeType: "application/json" }
 });
+
+const foodAnalysisModel = genAI.getGenerativeModel({
+  model: config.gemini.chatModel,
+  generationConfig: { responseMimeType: "application/json" },
+});
+
+const FOOD_ANALYSIS_PROMPT = `
+Analyze this meal photo and return strict JSON only.
+
+Return an object with this shape:
+{
+  "detectedFoods": [
+    {
+      "name": "string",
+      "estimatedPortion": "string",
+      "calories": number | null,
+      "protein": number | null,
+      "carbs": number | null,
+      "fat": number | null,
+      "confidence": number | null
+    }
+  ],
+  "totalCalories": number | null,
+  "totalProtein": number | null,
+  "totalCarbs": number | null,
+  "totalFat": number | null,
+  "notes": "string | null"
+}
+
+Rules:
+- Estimate visible foods only.
+- Use null when you cannot estimate a value safely.
+- Keep numbers realistic for a single meal photo.
+- Do not wrap the JSON in markdown fences.
+`;
 
 export const aiService = {
   
@@ -100,6 +136,25 @@ export const aiService = {
     } catch (error) {
       logger.error("Error generating summary", error instanceof Error ? error : undefined);
       throw new AIServiceError("Failed to update daily summary");
+    }
+  },
+
+  async analyzeFood(imageBuffer: Buffer, mimeType: string): Promise<FoodAnalysisResult> {
+    try {
+      const result = await foodAnalysisModel.generateContent([
+        FOOD_ANALYSIS_PROMPT,
+        {
+          inlineData: {
+            mimeType,
+            data: imageBuffer.toString("base64"),
+          },
+        },
+      ]);
+
+      return JSON.parse(result.response.text()) as FoodAnalysisResult;
+    } catch (error) {
+      logger.error("Error analyzing food image", error instanceof Error ? error : undefined);
+      throw new AIServiceError("Failed to analyze food image");
     }
   },
 

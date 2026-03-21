@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, jsonb, integer, real } from "drizzle-orm/pg-core";
+import type { DetectedFood } from "../types/index.js";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -52,6 +53,29 @@ export const logEntry = pgTable("log_entry", {
   content: text("content").notNull(),
   type: text("type").notNull().default("health_log"),
   status: text("status").notNull().default("pending"), 
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const foodLog = pgTable("food_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  imageUrl: text("image_url"),
+  storagePath: text("storage_path").notNull(),
+  mimeType: text("mime_type").notNull(),
+  originalFilename: text("original_filename"),
+  detectedFoods: jsonb("detected_foods").$type<DetectedFood[]>(),
+  totalCalories: integer("total_calories"),
+  totalProtein: real("total_protein"),
+  totalCarbs: real("total_carbs"),
+  totalFat: real("total_fat"),
+  userCorrected: boolean("user_corrected").default(false),
+  correctedData: jsonb("corrected_data"),
+  status: text("status").notNull().default("pending"),
+  processingError: text("processing_error"),
+  mealType: text("meal_type"),
+  notes: text("notes"),
+  loggedAt: timestamp("logged_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
