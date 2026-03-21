@@ -1,4 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { config } from "../config/index.js";
+import { AIServiceError } from "../utils/errors.js";
+import { logger } from "../utils/logger.js";
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is missing in environment variables");
@@ -7,11 +10,11 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
-const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
-const chatModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const embeddingModel = genAI.getGenerativeModel({ model: config.gemini.embeddingModel });
+const chatModel = genAI.getGenerativeModel({ model: config.gemini.chatModel });
 
 const factExtractionModel = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash",
+    model: config.gemini.chatModel,
     generationConfig: { responseMimeType: "application/json" }
 });
 
@@ -25,8 +28,8 @@ export const aiService = {
       const embedding = result.embedding;
       return embedding.values;
     } catch (error) {
-      console.error("Error generating embedding:", error);
-      throw error;
+      logger.error("Error generating embedding", error instanceof Error ? error : undefined);
+      throw new AIServiceError("Failed to generate embedding");
     }
   },
 
@@ -38,8 +41,8 @@ export const aiService = {
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error("Error generating response:", error);
-      throw error;
+      logger.error("Error generating response", error instanceof Error ? error : undefined);
+      throw new AIServiceError("Failed to generate response");
     }
   },
 
@@ -60,7 +63,7 @@ export const aiService = {
       const responseText = result.response.text();
       return JSON.parse(responseText) as string[]; 
     } catch (error) {
-      console.error("Error extraction facts:", error);
+      logger.error("Error extracting facts", error instanceof Error ? error : undefined);
       return []; 
     }
   },
@@ -95,8 +98,8 @@ export const aiService = {
       const result = await chatModel.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error generating summary:", error);
-      throw error;
+      logger.error("Error generating summary", error instanceof Error ? error : undefined);
+      throw new AIServiceError("Failed to update daily summary");
     }
   },
 
@@ -131,15 +134,15 @@ export const aiService = {
 
       // Logic: Return Draft or Correction
       if (critiqueResponse.toUpperCase().includes("VALID")) {
-        console.log("[CoVe] Draft verified successfully.");
+        logger.info("[CoVe] Draft verified successfully.");
         return draftAnswer;
       } else {
-        console.log("[CoVe] Hallucination detected. Returning corrected version.");
+        logger.warn("[CoVe] Hallucination detected. Returning corrected version.");
         return critiqueResponse;
       }
 
     } catch (error) {
-      console.error("Error in verification chain:", error);
+      logger.error("Error in verification chain", error instanceof Error ? error : undefined);
       // Fallback: If verification fails, just return the first draft (better than nothing)
       return this.generateResponse(originalPrompt);
     }

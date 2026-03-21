@@ -1,11 +1,13 @@
 import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, v5 as uuidv5 } from "uuid";
 import connection from "../lib/redis.js";
 import { aiService } from "../lib/gemini.js";
 import { vectorService } from "../lib/qdrant.js";
 import { db } from "../db/index.js";
 import { logEntry } from "../db/schema.js";
+import { logger } from "../utils/logger.js";
+import { getTodayDateString, UUID_NAMESPACE } from "../utils/helpers.js";
 
 export const logWorker = new Worker(
   "log-processing",
@@ -13,7 +15,7 @@ export const logWorker = new Worker(
     const { logId, userId, text } = job.data;
     
     try {
-      console.log(`[Worker] Processing Log ${logId}`);
+      logger.worker("Processing log", String(job.id), { logId, userId });
 
       const logVector = await aiService.generateEmbedding(text);
       await vectorService.upsertPoint(vectorService.LOGS_COLLECTION, logId, logVector, {
@@ -23,11 +25,11 @@ export const logWorker = new Worker(
         type: "health_log"
       });
 
-      console.log(`[Worker] Extracting facts for Log ${logId}...`);
+      logger.worker("Extracting facts", String(job.id), { logId, userId });
       const facts = await aiService.extractFacts(text);
 
       if (facts.length > 0) {
-        console.log(`[Worker] Found ${facts.length} facts:`, facts);
+        logger.info("Extracted facts from health log", { logId, userId, factsCount: facts.length });
       
         for (const fact of facts) {
             const factId = uuidv4();
@@ -42,23 +44,21 @@ export const logWorker = new Worker(
             });
         }
       } else {
-        console.log("[Worker] No facts extracted.");
+        logger.info("No facts extracted from health log", { logId, userId });
       }
 
 
-      console.log(`[Worker] Updating daily summary for user ${userId}...`);
+      logger.worker("Updating daily summary", String(job.id), { logId, userId });
       
     
-      const today = new Date().toISOString().split('T')[0];
-      const { v5: uuidv5 } = await import('uuid');
-      const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8"; 
-      const deterministicId = uuidv5(`${userId}_${today}`, NAMESPACE);
+      const today = getTodayDateString();
+      const deterministicId = uuidv5(`${userId}_${today}`, UUID_NAMESPACE);
 
       const existingPoint = await vectorService.getPoint(vectorService.SUMMARIES_COLLECTION, deterministicId);
       const currentSummaryText = existingPoint?.payload?.text as string || null;
 
       const updatedSummary = await aiService.updateDailySummary(currentSummaryText, text);
-      console.log(`[Worker] New Daily Summary: ${updatedSummary}`);
+      logger.debug("Daily summary updated", { logId, userId, date: today });
 
       const summaryVector = await aiService.generateEmbedding(updatedSummary);
       
@@ -79,8 +79,11 @@ export const logWorker = new Worker(
 
       return { success: true, factsCount: facts.length };
 
-    } catch (error: any) {
-      console.error(`[Worker] Failed to process log ${logId}:`, error);
+    } catch (error) {
+      logger.error(`Failed to process log ${logId}`, error instanceof Error ? error : undefined, {
+        logId,
+        userId,
+      });
       await db.update(logEntry).set({ status: "failed" }).where(eq(logEntry.id, logId));
       throw error;
     }
@@ -90,13 +93,18 @@ export const logWorker = new Worker(
 
 
 logWorker.on("completed", (job) => {
-  console.log(`[Worker] Job ${job.id} completed successfully`);
-  console.log(`[Metrics] Processed log for userId: ${job.data.userId}`);
+  logger.worker("Job completed successfully", String(job.id), {
+    logId: job.data.logId,
+    userId: job.data.userId,
+  });
 });
 
 logWorker.on("failed", (job, err) => {
-  console.error(`[Worker] Job ${job?.id} failed:`, err.message);
-  console.error(`[Alert] Failed to process log ${job?.data?.logId} for userId: ${job?.data?.userId}`);
+  logger.error("Worker job failed", err, {
+    jobId: job?.id,
+    logId: job?.data?.logId,
+    userId: job?.data?.userId,
+  });
   // TODO: Integrate with Sentry or monitoring service
   // Sentry.captureException(err, { extra: { jobId: job?.id, logId: job?.data?.logId } });
 });

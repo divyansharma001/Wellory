@@ -1,12 +1,14 @@
 import type { Request } from "express";
 
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string;
+}
+
 export interface AuthenticatedRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    image?: string;
-  };
+  user: AuthenticatedUser;
   requestId: string;
 }
 
@@ -70,6 +72,20 @@ export interface ChatResponse {
     hasSummary: boolean;
     verification: string;
     cacheHit?: boolean;
+  };
+}
+
+export interface ChatContext {
+  factsContext: string;
+  logsContext: string;
+  currentContext: string;
+  conflictsContext: string;
+  combinedContextForVerifier: string;
+  debug: {
+    factsUsed: number;
+    logsUsed: number;
+    hasSummary: boolean;
+    verification: string;
   };
 }
 

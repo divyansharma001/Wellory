@@ -1,4 +1,5 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { logger } from "../utils/logger.js";
 
 const client = new QdrantClient({ host: "localhost", port: 6333 });
 
@@ -18,7 +19,7 @@ export const vectorService = {
           await client.createCollection(name, {
             vectors: { size: 3072, distance: "Cosine" },
           });
-          console.log(`Collection '${name}' created.`);
+          logger.info(`Collection '${name}' created.`);
         }
       };
 
@@ -27,7 +28,7 @@ export const vectorService = {
       await ensureCollection(this.SUMMARIES_COLLECTION); 
 
     } catch (error) {
-      console.error("Error initializing Qdrant collections:", error);
+      logger.error("Error initializing Qdrant collections", error instanceof Error ? error : undefined);
     }
   },
 
