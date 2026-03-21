@@ -6,6 +6,7 @@ import { aiService } from "../lib/gemini.js";
 import { vectorService } from "../lib/qdrant.js";
 import { db } from "../db/index.js";
 import { foodLog } from "../db/schema.js";
+import { nutritionService } from "../services/nutrition.service.js";
 import type { FoodAnalysisResult } from "../types/index.js";
 import { logger } from "../utils/logger.js";
 
@@ -66,6 +67,13 @@ export const foodWorker = new Worker(
         imageUrl: existing?.imageUrl ?? null,
         totalCalories: analysis.totalCalories,
       });
+
+      if (existing) {
+        await nutritionService.refreshDailySummaryForDate(
+          userId,
+          existing.loggedAt.toISOString().split("T")[0],
+        );
+      }
 
       return { success: true, detectedFoods: analysis.detectedFoods.length };
     } catch (error) {

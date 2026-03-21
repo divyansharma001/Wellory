@@ -166,3 +166,36 @@ export interface FoodLogJobData {
   imagePath: string;
   mimeType: string;
 }
+
+export type GoalType = "lose" | "maintain" | "gain";
+export type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "very_active";
+export type NutritionPeriod = "day" | "week";
+
+export interface NutritionGoalRecord {
+  id: string;
+  userId: string;
+  dailyCalories: number | null;
+  dailyProtein: number | null;
+  dailyCarbs: number | null;
+  dailyFat: number | null;
+  goalType: GoalType | null;
+  activityLevel: ActivityLevel | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DailyNutritionSummaryRecord {
+  id: string;
+  userId: string;
+  date: string;
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+  breakfastCalories: number;
+  lunchCalories: number;
+  dinnerCalories: number;
+  snackCalories: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

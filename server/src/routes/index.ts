@@ -3,6 +3,7 @@ import { addLogJob } from "../lib/queue.js";
 import { aiService } from "../lib/gemini.js";
 import { chatRouter } from "./chat.routes.js";
 import { foodRouter } from "./food.routes.js";
+import { goalsRouter } from "./goals.routes.js";
 import { logsRouter } from "./logs.routes.js";
 import { AIServiceError } from "../utils/errors.js";
 
@@ -11,6 +12,7 @@ export const apiRouter = Router();
 apiRouter.use(logsRouter);
 apiRouter.use(chatRouter);
 apiRouter.use(foodRouter);
+apiRouter.use(goalsRouter);
 
 apiRouter.post("/test-queue", async (req, res, next) => {
   try {

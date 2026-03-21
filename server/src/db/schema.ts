@@ -79,3 +79,32 @@ export const foodLog = pgTable("food_log", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const nutritionGoal = pgTable("nutrition_goal", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id).unique(),
+  dailyCalories: integer("daily_calories"),
+  dailyProtein: real("daily_protein"),
+  dailyCarbs: real("daily_carbs"),
+  dailyFat: real("daily_fat"),
+  goalType: text("goal_type"),
+  activityLevel: text("activity_level"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const dailyNutritionSummary = pgTable("daily_nutrition_summary", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  date: text("date").notNull(),
+  totalCalories: integer("total_calories").notNull().default(0),
+  totalProtein: real("total_protein").notNull().default(0),
+  totalCarbs: real("total_carbs").notNull().default(0),
+  totalFat: real("total_fat").notNull().default(0),
+  breakfastCalories: integer("breakfast_calories").notNull().default(0),
+  lunchCalories: integer("lunch_calories").notNull().default(0),
+  dinnerCalories: integer("dinner_calories").notNull().default(0),
+  snackCalories: integer("snack_calories").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

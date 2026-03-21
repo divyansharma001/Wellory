@@ -15,6 +15,7 @@ import {
   foodLogIdParamSchema,
   updateFoodLogSchema,
 } from "../schemas/food.schema.js";
+import { nutritionService } from "../services/nutrition.service.js";
 import type { AuthenticatedRequest } from "../types/index.js";
 import { AppError, NotFoundError } from "../utils/errors.js";
 import { logger } from "../utils/logger.js";
@@ -158,9 +159,16 @@ foodRouter.patch(
           totalProtein: correctedData?.totalProtein ?? existing.totalProtein,
           totalCarbs: correctedData?.totalCarbs ?? existing.totalCarbs,
           totalFat: correctedData?.totalFat ?? existing.totalFat,
+          status: existing.status === "pending" ? existing.status : "completed",
+          processingError: correctedData ? null : existing.processingError,
           updatedAt: new Date(),
         })
         .where(eq(foodLog.id, foodLogId));
+
+      await nutritionService.refreshDailySummaryForDate(
+        authReq.user.id,
+        existing.loggedAt.toISOString().split("T")[0],
+      );
 
       const [updated] = await db
         .select()
@@ -203,6 +211,10 @@ foodRouter.delete(
       }
 
       await vectorService.deletePoint(vectorService.LOGS_COLLECTION, foodLogId).catch(() => undefined);
+      await nutritionService.refreshDailySummaryForDate(
+        authReq.user.id,
+        existing.loggedAt.toISOString().split("T")[0],
+      );
 
       res.json({
         success: true,

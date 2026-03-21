@@ -29,6 +29,13 @@
       "when": 1774121984548,
       "tag": "0003_wild_makkari",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774122520290,
+      "tag": "0004_spicy_romulus",
+      "breakpoints": true
     }
   ]
 }
