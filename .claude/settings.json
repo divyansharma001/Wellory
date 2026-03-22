@@ -4,7 +4,11 @@
       "Read(//c/health-tracker/**)",
       "Bash(find /c/health-tracker -name *.test.ts -o -name *.spec.ts -o -name jest.config.* -o -name vitest.config.*)",
       "Bash(find /c/health-tracker -name Dockerfile* -o -name .dockerignore)",
-      "Bash(find /c/health-tracker/server/src/workers -type f -name \"*.ts\" -exec wc -l {} +)"
+      "Bash(find /c/health-tracker/server/src/workers -type f -name \"*.ts\" -exec wc -l {} +)",
+      "Bash(node -e \"const p=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const j=JSON.parse\\(p\\); console.log\\(''''version:'''', j.version\\)\")",
+      "Bash(node -e \"console.log\\(require\\(''c:/health-tracker/node_modules/react-native/package.json''\\).version\\)\")",
+      "Bash(npm ls:*)",
+      "Bash(npm --version)"
     ]
   }
 }
