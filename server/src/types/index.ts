@@ -14,6 +14,8 @@ export interface AuthenticatedRequest extends Request {
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 export type FoodLogStatus = "pending" | "completed" | "failed";
+export type FoodEntryMode = "photo" | "manual" | "hybrid";
+export type FoodLogRevisionType = "ai_initial" | "manual_initial" | "user_edit" | "reprocess";
 
 export interface PaginationParams {
   page: number;
@@ -164,6 +166,23 @@ export interface FoodLogJobData {
   foodLogId: string;
   userId: string;
   imagePath: string;
+  mimeType: string;
+}
+
+export interface FoodLogRevisionPayload extends FoodAnalysisResult {
+  title?: string | null;
+  mealType?: MealType | null;
+  notes?: string | null;
+  imageUrl?: string | null;
+  entryMode?: FoodEntryMode | null;
+}
+
+export type VoiceLogStatus = "pending" | "completed" | "failed";
+
+export interface VoiceLogJobData {
+  voiceLogId: string;
+  userId: string;
+  audioPath: string;
   mimeType: string;
 }
 

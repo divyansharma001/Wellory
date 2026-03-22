@@ -54,6 +54,16 @@ Rules:
 - Do not wrap the JSON in markdown fences.
 `;
 
+const AUDIO_TRANSCRIPTION_PROMPT = `
+Transcribe this health voice note into clean plain text.
+
+Rules:
+- Return only the transcript.
+- Do not summarize or explain.
+- Preserve health details like meals, symptoms, exercise, hydration, sleep, and timing when audible.
+- If some words are unclear, make the best reasonable transcription and keep going.
+`;
+
 export const aiService = {
   
    // Converts text into a vector array (3072 dimensions)
@@ -155,6 +165,25 @@ export const aiService = {
     } catch (error) {
       logger.error("Error analyzing food image", error instanceof Error ? error : undefined);
       throw new AIServiceError("Failed to analyze food image");
+    }
+  },
+
+  async transcribeAudio(audioBuffer: Buffer, mimeType: string): Promise<string> {
+    try {
+      const result = await chatModel.generateContent([
+        AUDIO_TRANSCRIPTION_PROMPT,
+        {
+          inlineData: {
+            mimeType,
+            data: audioBuffer.toString("base64"),
+          },
+        },
+      ]);
+
+      return result.response.text().trim();
+    } catch (error) {
+      logger.error("Error transcribing audio", error instanceof Error ? error : undefined);
+      throw new AIServiceError("Failed to transcribe audio");
     }
   },
 

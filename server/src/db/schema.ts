@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, boolean, jsonb, integer, real } from "drizzle-orm/pg-core";
-import type { DetectedFood } from "../types/index.js";
+import type { DetectedFood, FoodLogRevisionPayload } from "../types/index.js";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -60,9 +60,11 @@ export const logEntry = pgTable("log_entry", {
 export const foodLog = pgTable("food_log", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().references(() => user.id),
+  title: text("title"),
+  entryMode: text("entry_mode").notNull().default("photo"),
   imageUrl: text("image_url"),
-  storagePath: text("storage_path").notNull(),
-  mimeType: text("mime_type").notNull(),
+  storagePath: text("storage_path"),
+  mimeType: text("mime_type"),
   originalFilename: text("original_filename"),
   detectedFoods: jsonb("detected_foods").$type<DetectedFood[]>(),
   totalCalories: integer("total_calories"),
@@ -76,6 +78,31 @@ export const foodLog = pgTable("food_log", {
   mealType: text("meal_type"),
   notes: text("notes"),
   loggedAt: timestamp("logged_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const foodLogRevision = pgTable("food_log_revision", {
+  id: text("id").primaryKey(),
+  foodLogId: text("food_log_id").notNull().references(() => foodLog.id),
+  userId: text("user_id").notNull().references(() => user.id),
+  revisionType: text("revision_type").notNull(),
+  data: jsonb("data").$type<FoodLogRevisionPayload>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const voiceLog = pgTable("voice_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  audioUrl: text("audio_url"),
+  storagePath: text("storage_path").notNull(),
+  mimeType: text("mime_type").notNull(),
+  originalFilename: text("original_filename"),
+  durationSeconds: integer("duration_seconds"),
+  transcript: text("transcript"),
+  status: text("status").notNull().default("pending"),
+  processingError: text("processing_error"),
+  createdLogEntryId: text("created_log_entry_id").references(() => logEntry.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

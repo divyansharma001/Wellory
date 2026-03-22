@@ -7,6 +7,7 @@ import path from "node:path";
 import { auth } from "./lib/auth.js";
 import "./workers/log.worker.js";
 import "./workers/food.worker.js";
+import "./workers/voice.worker.js";
 import { config, validateConfig } from "./config/index.js";
 import { vectorService } from "./lib/qdrant.js";
 import { apiRouter } from "./routes/index.js";

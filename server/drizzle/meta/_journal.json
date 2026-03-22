@@ -36,6 +36,20 @@
       "when": 1774122520290,
       "tag": "0004_spicy_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774154247660,
+      "tag": "0005_neat_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774154599835,
+      "tag": "0006_fuzzy_kree",
+      "breakpoints": true
     }
   ]
 }
