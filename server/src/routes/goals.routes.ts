@@ -2,10 +2,12 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
 import {
+  goalRecommendationQuerySchema,
   nutritionProgressQuerySchema,
   nutritionSummaryQuerySchema,
   upsertGoalsSchema,
 } from "../schemas/goals.schema.js";
+import { goalRecommendationService } from "../services/goal-recommendation.service.js";
 import { nutritionService } from "../services/nutrition.service.js";
 import type { AuthenticatedRequest, NutritionPeriod } from "../types/index.js";
 
@@ -72,6 +74,26 @@ goalsRouter.get(
       res.json({
         success: true,
         data: progress,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+goalsRouter.get(
+  "/goals/recommendations",
+  requireAuth,
+  validate(goalRecommendationQuerySchema, "query"),
+  async (req, res, next) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const days = Number(req.query.days);
+      const recommendations = await goalRecommendationService.getRecommendations(authReq.user.id, days);
+
+      res.json({
+        success: true,
+        data: recommendations,
       });
     } catch (error) {
       next(error);

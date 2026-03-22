@@ -271,3 +271,18 @@ export interface AdherenceSummary {
   loggingDaysHit: number;
   summaryText: string;
 }
+
+export interface WeeklyInsightItem {
+  type: "protein" | "hydration" | "calories" | "exercise" | "logging" | "weight";
+  title: string;
+  message: string;
+  severity: "info" | "warning" | "positive";
+}
+
+export interface GoalRecommendation {
+  suggestedCalories: number | null;
+  suggestedProtein: number | null;
+  suggestedCarbs: number | null;
+  suggestedFat: number | null;
+  reasoning: string[];
+}

@@ -26,3 +26,7 @@ export const nutritionSummaryQuerySchema = z.object({
 export const nutritionProgressQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).default(30),
 });
+
+export const goalRecommendationQuerySchema = z.object({
+  days: z.coerce.number().int().min(7).max(90).default(14),
+});
