@@ -1,0 +1,24 @@
+{
+  "name": "@health-tracker/web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@health-tracker/api-client": "file:../../packages/api-client",
+    "@health-tracker/design-tokens": "file:../../packages/design-tokens",
+    "@health-tracker/types": "file:../../packages/types",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0"
+  }
+}
