@@ -2,10 +2,14 @@ import { Router } from "express";
 import { addLogJob } from "../lib/queue.js";
 import { aiService } from "../lib/gemini.js";
 import { chatRouter } from "./chat.routes.js";
+import { dashboardRouter } from "./dashboard.routes.js";
+import { exerciseRouter } from "./exercise.routes.js";
 import { foodRouter } from "./food.routes.js";
 import { goalsRouter } from "./goals.routes.js";
 import { logsRouter } from "./logs.routes.js";
 import { voiceRouter } from "./voice.routes.js";
+import { waterRouter } from "./water.routes.js";
+import { weightRouter } from "./weight.routes.js";
 import { AIServiceError } from "../utils/errors.js";
 
 export const apiRouter = Router();
@@ -15,6 +19,10 @@ apiRouter.use(chatRouter);
 apiRouter.use(foodRouter);
 apiRouter.use(goalsRouter);
 apiRouter.use(voiceRouter);
+apiRouter.use(waterRouter);
+apiRouter.use(exerciseRouter);
+apiRouter.use(weightRouter);
+apiRouter.use(dashboardRouter);
 
 apiRouter.post("/test-queue", async (req, res, next) => {
   try {

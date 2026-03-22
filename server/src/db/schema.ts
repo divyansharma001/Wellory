@@ -135,3 +135,46 @@ export const dailyNutritionSummary = pgTable("daily_nutrition_summary", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const waterLog = pgTable("water_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  amountMl: integer("amount_ml").notNull(),
+  loggedAt: timestamp("logged_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const exerciseLog = pgTable("exercise_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  activityType: text("activity_type").notNull(),
+  durationMinutes: integer("duration_minutes").notNull(),
+  estimatedCaloriesBurned: integer("estimated_calories_burned"),
+  notes: text("notes"),
+  loggedAt: timestamp("logged_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const weightLog = pgTable("weight_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  weightKg: real("weight_kg").notNull(),
+  notes: text("notes"),
+  loggedAt: timestamp("logged_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const dailyHealthSummary = pgTable("daily_health_summary", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  date: text("date").notNull(),
+  waterMl: integer("water_ml").notNull().default(0),
+  exerciseMinutes: integer("exercise_minutes").notNull().default(0),
+  caloriesBurned: integer("calories_burned").notNull().default(0),
+  latestWeightKg: real("latest_weight_kg"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

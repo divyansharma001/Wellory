@@ -50,6 +50,13 @@
       "when": 1774154599835,
       "tag": "0006_fuzzy_kree",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1774155250128,
+      "tag": "0007_slim_the_hood",
+      "breakpoints": true
     }
   ]
 }

@@ -218,3 +218,56 @@ export interface DailyNutritionSummaryRecord {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface WaterLogRecord {
+  id: string;
+  userId: string;
+  amountMl: number;
+  loggedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ExerciseLogRecord {
+  id: string;
+  userId: string;
+  activityType: string;
+  durationMinutes: number;
+  estimatedCaloriesBurned: number | null;
+  notes: string | null;
+  loggedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WeightLogRecord {
+  id: string;
+  userId: string;
+  weightKg: number;
+  notes: string | null;
+  loggedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DailyHealthSummaryRecord {
+  id: string;
+  userId: string;
+  date: string;
+  waterMl: number;
+  exerciseMinutes: number;
+  caloriesBurned: number;
+  latestWeightKg: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AdherenceSummary {
+  days: number;
+  calorieGoalDaysHit: number;
+  proteinGoalDaysHit: number;
+  hydrationDaysHit: number;
+  exerciseDaysHit: number;
+  loggingDaysHit: number;
+  summaryText: string;
+}
