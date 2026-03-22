@@ -1,10 +1,21 @@
 import type {
+  AdherenceSummary,
   ApiResponse,
+  ChatResponse,
+  DashboardData,
+  ExerciseLog,
   FoodLog,
-  GoalRecommendation,
+  GoalRecommendationWindow,
+  HealthResponse,
+  LogCreateResponse,
   NutritionGoals,
+  NutritionPeriod,
+  NutritionProgress,
+  NutritionSummary,
   VoiceLog,
+  WaterLog,
   WeeklyInsight,
+  WeightLog,
 } from "@health-tracker/types";
 
 export interface ApiClientOptions {
@@ -24,6 +35,12 @@ export class ApiClient {
     this.credentials = options.credentials ?? "include";
   }
 
+  resolveAssetUrl(path?: string | null) {
+    if (!path) return null;
+    if (/^https?:\/\//.test(path)) return path;
+    return `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+  }
+
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
@@ -34,7 +51,9 @@ export class ApiClient {
       },
     });
 
-    const data = (await response.json()) as T;
+    const isJson = response.headers.get("content-type")?.includes("application/json");
+    const data = isJson ? ((await response.json()) as T) : (undefined as T);
+
     if (!response.ok) {
       throw data;
     }
@@ -52,19 +71,19 @@ export class ApiClient {
     });
   }
 
-  getHealth(): Promise<{ status: string; timestamp: string }> {
+  getHealth(): Promise<HealthResponse> {
     return this.request("/health");
   }
 
-  createLog(content: string) {
+  createLog(content: string): Promise<LogCreateResponse> {
     return this.json("/api/logs", "POST", { content });
   }
 
-  createChat(message: string) {
+  createChat(message: string): Promise<ChatResponse> {
     return this.json("/api/chat", "POST", { message });
   }
 
-  uploadFoodPhoto(formData: FormData) {
+  uploadFoodPhoto(formData: FormData): Promise<{ success: true; id: string; status: "queued"; imageUrl: string }> {
     return this.request("/api/food", {
       method: "POST",
       body: formData,
@@ -84,7 +103,7 @@ export class ApiClient {
   }
 
   getFoodHistory(id: string) {
-    return this.request(`/api/food/${id}/history`);
+    return this.request<ApiResponse<Array<Record<string, unknown>>>>(`/api/food/${id}/history`);
   }
 
   updateFoodLog(id: string, payload: unknown) {
@@ -92,11 +111,11 @@ export class ApiClient {
   }
 
   deleteFoodLog(id: string) {
-    return this.request(`/api/food/${id}`, { method: "DELETE" });
+    return this.request<{ success: true; message: string }>(`/api/food/${id}`, { method: "DELETE" });
   }
 
   uploadVoiceLog(formData: FormData) {
-    return this.request("/api/voice-logs", {
+    return this.request<{ success: true; id: string; status: "queued"; audioUrl: string }>("/api/voice-logs", {
       method: "POST",
       body: formData,
     });
@@ -118,26 +137,24 @@ export class ApiClient {
     return this.json<ApiResponse<NutritionGoals>>("/api/goals", "PUT", payload);
   }
 
-  getNutritionSummary(period: "day" | "week") {
-    return this.request(`/api/goals/nutrition?period=${period}`);
+  getNutritionSummary(period: NutritionPeriod = "day") {
+    return this.request<ApiResponse<NutritionSummary>>(`/api/goals/nutrition?period=${period}`);
   }
 
   getNutritionProgress(days = 30) {
-    return this.request(`/api/goals/progress?days=${days}`);
+    return this.request<ApiResponse<NutritionProgress>>(`/api/goals/progress?days=${days}`);
   }
 
   getGoalRecommendations(days = 14) {
-    return this.request<ApiResponse<{ from: string; to: string; recommendation: GoalRecommendation }>>(
-      `/api/goals/recommendations?days=${days}`,
-    );
+    return this.request<ApiResponse<GoalRecommendationWindow>>(`/api/goals/recommendations?days=${days}`);
   }
 
   getAdherence(days = 7) {
-    return this.request(`/api/goals/adherence?days=${days}`);
+    return this.request<ApiResponse<AdherenceSummary>>(`/api/goals/adherence?days=${days}`);
   }
 
-  getDashboard(period: "day" | "week") {
-    return this.request(`/api/dashboard/${period}`);
+  getDashboard(period: NutritionPeriod = "day") {
+    return this.request<ApiResponse<DashboardData>>(`/api/dashboard/${period}`);
   }
 
   getWeeklyInsights() {
@@ -147,15 +164,15 @@ export class ApiClient {
   }
 
   createWaterLog(payload: { amountMl: number; loggedAt?: string }) {
-    return this.json("/api/water", "POST", payload);
+    return this.json<ApiResponse<WaterLog>>("/api/water", "POST", payload);
   }
 
   getWaterLogs() {
-    return this.request("/api/water");
+    return this.request<ApiResponse<WaterLog[]>>("/api/water");
   }
 
   deleteWaterLog(id: string) {
-    return this.request(`/api/water/${id}`, { method: "DELETE" });
+    return this.request<{ success: true; message: string }>(`/api/water/${id}`, { method: "DELETE" });
   }
 
   createExerciseLog(payload: {
@@ -165,30 +182,30 @@ export class ApiClient {
     notes?: string;
     loggedAt?: string;
   }) {
-    return this.json("/api/exercise", "POST", payload);
+    return this.json<ApiResponse<ExerciseLog>>("/api/exercise", "POST", payload);
   }
 
   getExerciseLogs() {
-    return this.request("/api/exercise");
+    return this.request<ApiResponse<ExerciseLog[]>>("/api/exercise");
   }
 
   deleteExerciseLog(id: string) {
-    return this.request(`/api/exercise/${id}`, { method: "DELETE" });
+    return this.request<{ success: true; message: string }>(`/api/exercise/${id}`, { method: "DELETE" });
   }
 
   createWeightLog(payload: { weightKg: number; notes?: string; loggedAt?: string }) {
-    return this.json("/api/weight", "POST", payload);
+    return this.json<ApiResponse<WeightLog>>("/api/weight", "POST", payload);
   }
 
   getWeightLogs() {
-    return this.request("/api/weight");
+    return this.request<ApiResponse<WeightLog[]>>("/api/weight");
   }
 
   deleteWeightLog(id: string) {
-    return this.request(`/api/weight/${id}`, { method: "DELETE" });
+    return this.request<{ success: true; message: string }>(`/api/weight/${id}`, { method: "DELETE" });
   }
 }
 
-export function createApiClient(baseUrl: string) {
-  return new ApiClient({ baseUrl });
+export function createApiClient(baseUrl: string, options?: Omit<ApiClientOptions, "baseUrl">) {
+  return new ApiClient({ baseUrl, ...options });
 }
