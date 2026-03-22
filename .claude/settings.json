@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/health-tracker/**)"
+      "Read(//c/health-tracker/**)",
+      "Bash(find /c/health-tracker -name *.test.ts -o -name *.spec.ts -o -name jest.config.* -o -name vitest.config.*)",
+      "Bash(find /c/health-tracker -name Dockerfile* -o -name .dockerignore)",
+      "Bash(find /c/health-tracker/server/src/workers -type f -name \"*.ts\" -exec wc -l {} +)"
     ]
   }
 }
