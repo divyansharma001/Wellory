@@ -1,15 +1,17 @@
 "use client";
 
+import { DashboardIcon, MealsIcon, PlusIcon, ChatIcon, ProgressIcon } from "./Icons";
+
 interface BottomNavProps {
   active: "dashboard" | "meals" | "add" | "chat" | "progress";
 }
 
 const TABS = [
-  { key: "dashboard", icon: "▣", label: "Dashboard", href: "/dashboard" },
-  { key: "meals", icon: "🍽", label: "Meals", href: "/meals" },
-  { key: "add", icon: "+", label: "Add", href: "/add" },
-  { key: "chat", icon: "💬", label: "Chat", href: "/chat" },
-  { key: "progress", icon: "📊", label: "Progress", href: "/progress" },
+  { key: "dashboard", label: "Dashboard", href: "/dashboard", Icon: DashboardIcon },
+  { key: "meals", label: "Meals", href: "/meals", Icon: MealsIcon },
+  { key: "add", label: "Add", href: "/add", Icon: PlusIcon },
+  { key: "chat", label: "Chat", href: "/chat", Icon: ChatIcon },
+  { key: "progress", label: "Progress", href: "/progress", Icon: ProgressIcon },
 ] as const;
 
 export default function BottomNav({ active }: BottomNavProps) {
@@ -20,8 +22,8 @@ export default function BottomNav({ active }: BottomNavProps) {
         if (tab.key === "add") {
           return (
             <a key={tab.key} className="flex flex-col items-center -mt-10" href={tab.href}>
-              <div className="w-14 h-14 bg-primary-gradient rounded-full flex items-center justify-center text-white shadow-xl text-2xl">
-                +
+              <div className="w-14 h-14 bg-primary-gradient rounded-full flex items-center justify-center text-white shadow-xl">
+                <PlusIcon className="w-7 h-7" />
               </div>
               <span className="text-[10px] uppercase tracking-widest font-bold mt-1 text-primary">
                 {tab.label}
@@ -37,7 +39,7 @@ export default function BottomNav({ active }: BottomNavProps) {
             }`}
             href={tab.href}
           >
-            <span className="text-xl">{tab.icon}</span>
+            <tab.Icon className="w-6 h-6" />
             <span className="text-[10px] uppercase tracking-widest font-bold mt-1">{tab.label}</span>
           </a>
         );

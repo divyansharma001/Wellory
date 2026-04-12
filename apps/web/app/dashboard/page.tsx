@@ -16,6 +16,7 @@ import type {
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { SkeletonDashboard } from "../components/Skeleton";
+import { WaterIcon, ExerciseIcon, MusclIcon } from "../components/Icons";
 
 function fmt(value?: number | null, suffix = "") {
   if (value === null || value === undefined || Number.isNaN(value)) return "--";
@@ -92,17 +93,17 @@ export default function DashboardPage() {
     );
   }
 
-  const cals = dashboard?.totals.calories ?? 0;
-  const calGoal = dashboard?.goals.calories ?? goals?.dailyCalories ?? 2200;
-  const protein = dashboard?.totals.protein ?? 0;
-  const proteinGoal = dashboard?.goals.protein ?? goals?.dailyProtein ?? 150;
-  const carbs = dashboard?.totals.carbs ?? 0;
-  const carbsGoal = dashboard?.goals.carbs ?? goals?.dailyCarbs ?? 250;
-  const fat = dashboard?.totals.fat ?? 0;
-  const fatGoal = dashboard?.goals.fat ?? goals?.dailyFat ?? 70;
-  const water = dashboard?.totals.waterMl ?? 0;
+  const cals = dashboard?.totals?.calories ?? 0;
+  const calGoal = dashboard?.goals?.calories ?? goals?.dailyCalories ?? 2200;
+  const protein = dashboard?.totals?.protein ?? 0;
+  const proteinGoal = dashboard?.goals?.protein ?? goals?.dailyProtein ?? 150;
+  const carbs = dashboard?.totals?.carbs ?? 0;
+  const carbsGoal = dashboard?.goals?.carbs ?? goals?.dailyCarbs ?? 250;
+  const fat = dashboard?.totals?.fat ?? 0;
+  const fatGoal = dashboard?.goals?.fat ?? goals?.dailyFat ?? 70;
+  const water = dashboard?.totals?.waterMl ?? 0;
   const waterGoal = 2000;
-  const exerciseMin = dashboard?.totals.exerciseMinutes ?? 0;
+  const exerciseMin = dashboard?.totals?.exerciseMinutes ?? 0;
   const latestWeight = dashboard?.latestWeightKg ?? weightLogs[0]?.weightKg ?? null;
   const latestExercise = exerciseLogs[0];
   const latestInsight = insights[0];
@@ -187,11 +188,11 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-6 w-full">
               {([
-                { label: "Protein", value: protein, goal: proteinGoal, unit: "g", opacity: "" },
-                { label: "Carbs", value: carbs, goal: carbsGoal, unit: "g", opacity: "opacity-60" },
-                { label: "Fat", value: fat, goal: fatGoal, unit: "g", opacity: "opacity-40" },
+                { label: "Protein", value: protein, goal: proteinGoal, unit: "g", opacity: "", usePrimContainer: false },
+                { label: "Carbs", value: carbs, goal: carbsGoal, unit: "g", opacity: "opacity-60", usePrimContainer: false },
+                { label: "Fat", value: fat, goal: fatGoal, unit: "g", opacity: "opacity-40", usePrimContainer: false },
                 { label: "Hydration", value: water, goal: waterGoal, unit: "ml", opacity: "", usePrimContainer: true },
-              ] as const).map((m) => (
+              ]).map((m) => (
                 <div key={m.label}>
                   <p className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">{m.label}</p>
                   <p className="text-2xl font-bold text-primary">
@@ -301,12 +302,12 @@ export default function DashboardPage() {
           <h3 className="text-2xl font-bold text-primary mb-8 ml-2">Active Objectives</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {([
-              { icon: "💧", label: "Hydration", score: pct(water, waterGoal) },
-              { icon: "⚡", label: "Energy Balance", score: pct(cals, calGoal) },
-              { icon: "💪", label: "Protein Target", score: pct(protein, proteinGoal) },
-            ] as const).map((g) => (
+              { icon: <WaterIcon className="w-6 h-6 text-primary" />, label: "Hydration", score: pct(water, waterGoal) },
+              { icon: <ExerciseIcon className="w-6 h-6 text-primary" />, label: "Energy Balance", score: pct(cals, calGoal) },
+              { icon: <MusclIcon className="w-6 h-6 text-primary" />, label: "Protein Target", score: pct(protein, proteinGoal) },
+            ]).map((g) => (
               <div key={g.label} className="bg-surface-low p-6 rounded-2xl flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm">
                   {g.icon}
                 </div>
                 <div className="flex-1">

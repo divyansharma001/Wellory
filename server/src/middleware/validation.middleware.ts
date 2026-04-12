@@ -10,7 +10,11 @@ export function validate<T>(
   return (req: Request, _res: Response, next: NextFunction): void => {
     try {
       const parsed = schema.parse(req[target]);
-      req[target] = parsed;
+      // In Express 5, req.query and req.params are read-only getters.
+      // Only assign back for req.body which is writable.
+      if (target === "body") {
+        req.body = parsed;
+      }
       next();
     } catch (error) {
       next(error);

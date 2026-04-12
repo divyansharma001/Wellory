@@ -8,6 +8,7 @@ import type { NutritionGoals, GoalType, ActivityLevel, GoalRecommendation } from
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { ToastProvider, useToast } from "../components/Toast";
+import { LockIcon, MicIcon, DashboardIcon, ChevronRightIcon } from "../components/Icons";
 
 const GOAL_TYPES: { key: GoalType; label: string }[] = [
   { key: "lose", label: "Lose Weight" },
@@ -369,7 +370,7 @@ function SettingsContent() {
             {/* Info box */}
             <div className="bg-surface-low rounded-2xl p-4">
               <div className="flex gap-3">
-                <span className="text-lg">🔐</span>
+                <LockIcon className="w-5 h-5 text-primary" />
                 <div className="text-xs text-on-surface-variant leading-relaxed">
                   <p className="font-bold text-primary mb-1">How it works</p>
                   <p>Your key is stored in your browser&apos;s localStorage and sent as a header with API requests. It is never stored on our servers. If no key is provided, the server&apos;s default Gemini key is used.</p>
@@ -400,18 +401,14 @@ function SettingsContent() {
           <p className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-4">Quick Links</p>
           <div className="space-y-1">
             <a href="/voice" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-surface-low transition-colors">
-              <span className="text-lg">🎙</span>
+              <MicIcon className="w-5 h-5 text-primary/60" />
               <span className="font-bold text-sm text-primary">Voice Logs</span>
-              <svg className="w-4 h-4 text-stone-300 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRightIcon className="w-4 h-4 text-stone-300 ml-auto" />
             </a>
             <a href="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-surface-low transition-colors">
-              <span className="text-lg">▣</span>
+              <DashboardIcon className="w-5 h-5 text-primary/60" />
               <span className="font-bold text-sm text-primary">Dashboard</span>
-              <svg className="w-4 h-4 text-stone-300 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRightIcon className="w-4 h-4 text-stone-300 ml-auto" />
             </a>
           </div>
         </div>

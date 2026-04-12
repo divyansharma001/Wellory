@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 const nextConfig: NextConfig = {
+  output: "standalone",
   transpilePackages: [
     "@health-tracker/api-client",
     "@health-tracker/design-tokens",
@@ -10,11 +13,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:3000/api/:path*",
+        destination: `${apiUrl}/api/:path*`,
       },
       {
         source: "/health",
-        destination: "http://localhost:3000/health",
+        destination: `${apiUrl}/health`,
+      },
+      {
+        source: "/uploads/:path*",
+        destination: `${apiUrl}/uploads/:path*`,
       },
     ];
   },

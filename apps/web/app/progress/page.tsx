@@ -14,6 +14,7 @@ import type {
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { SkeletonDashboard } from "../components/Skeleton";
+import { MusclIcon, WaterIcon, FireIcon, ExerciseIcon, NoteIcon, WeightIcon, InsightIcon } from "../components/Icons";
 
 function fmt(value?: number | null, suffix = "") {
   if (value === null || value === undefined || Number.isNaN(value)) return "--";
@@ -25,15 +26,16 @@ function shortDate(dateStr: string) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function insightIcon(type: WeeklyInsight["type"]) {
+function InsightTypeIcon({ type }: { type: WeeklyInsight["type"] }) {
+  const cls = "w-5 h-5";
   switch (type) {
-    case "protein": return "💪";
-    case "hydration": return "💧";
-    case "calories": return "🔥";
-    case "exercise": return "⚡";
-    case "logging": return "📝";
-    case "weight": return "⚖️";
-    default: return "📊";
+    case "protein": return <MusclIcon className={cls} />;
+    case "hydration": return <WaterIcon className={cls} />;
+    case "calories": return <FireIcon className={cls} />;
+    case "exercise": return <ExerciseIcon className={cls} />;
+    case "logging": return <NoteIcon className={cls} />;
+    case "weight": return <WeightIcon className={cls} />;
+    default: return <InsightIcon className={cls} />;
   }
 }
 
@@ -87,11 +89,11 @@ export default function ProgressPage() {
   const goalKey = `goal${metric.charAt(0).toUpperCase() + metric.slice(1)}` as keyof NutritionProgressPoint;
 
   const adhItems = adherence ? [
-    { label: "Calorie Goal", hit: adherence.calorieGoalDaysHit, total: adherence.days, icon: "🔥" },
-    { label: "Protein Goal", hit: adherence.proteinGoalDaysHit, total: adherence.days, icon: "💪" },
-    { label: "Hydration", hit: adherence.hydrationDaysHit, total: adherence.days, icon: "💧" },
-    { label: "Exercise", hit: adherence.exerciseDaysHit, total: adherence.days, icon: "⚡" },
-    { label: "Logging", hit: adherence.loggingDaysHit, total: adherence.days, icon: "📝" },
+    { label: "Calorie Goal", hit: adherence.calorieGoalDaysHit, total: adherence.days, icon: <FireIcon className="w-4 h-4" /> },
+    { label: "Protein Goal", hit: adherence.proteinGoalDaysHit, total: adherence.days, icon: <MusclIcon className="w-4 h-4" /> },
+    { label: "Hydration", hit: adherence.hydrationDaysHit, total: adherence.days, icon: <WaterIcon className="w-4 h-4" /> },
+    { label: "Exercise", hit: adherence.exerciseDaysHit, total: adherence.days, icon: <ExerciseIcon className="w-4 h-4" /> },
+    { label: "Logging", hit: adherence.loggingDaysHit, total: adherence.days, icon: <NoteIcon className="w-4 h-4" /> },
   ] : [];
 
   const recentWeights = weightLogs.slice(0, 14).reverse();
@@ -276,14 +278,14 @@ export default function ProgressPage() {
             <h3 className="text-xl font-bold text-primary mb-6">Weekly Insights</h3>
             {insights.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-3xl mb-3">🔮</p>
+                <div className="mb-3"><InsightIcon className="w-8 h-8 text-primary/30 mx-auto" /></div>
                 <p className="text-stone-400 text-sm">Keep logging for a few more days to unlock AI-powered insights about your health patterns.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {insights.map((insight, i) => (
                   <div key={i} className="flex gap-4 items-start">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${severityStyle(insight.severity)}`}>{insightIcon(insight.type)}</div>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${severityStyle(insight.severity)}`}><InsightTypeIcon type={insight.type} /></div>
                     <div className="flex-1">
                       <h4 className="font-bold text-sm text-primary">{insight.title}</h4>
                       <p className="text-xs text-on-surface-variant leading-relaxed mt-0.5">{insight.message}</p>

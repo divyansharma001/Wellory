@@ -10,3 +10,4 @@ apps/mobile/.expo-shared/
 apps/mobile/node_modules/
 apps/web/node_modules/
 packages/*/node_modules/
+.env*

@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { ToastProvider, useToast } from "../components/Toast";
 import { SkeletonList } from "../components/Skeleton";
+import { MicIcon, ClockIcon, CheckIcon } from "../components/Icons";
 
 function timeAgo(dateStr?: string) {
   if (!dateStr) return "";
@@ -122,7 +123,7 @@ function VoicePageContent() {
                 disabled={uploading}
                 className="px-6 py-3 rounded-full bg-primary-gradient text-white font-bold text-sm shadow-lg shadow-primary/20 hover:translate-y-[-1px] transition-all disabled:opacity-50"
               >
-                {uploading ? "Uploading..." : "🎙 Upload Audio"}
+                {uploading ? "Uploading..." : <><MicIcon className="w-4 h-4 inline-block mr-1" /> Upload Audio</>}
               </button>
             </div>
           </div>
@@ -149,7 +150,7 @@ function VoicePageContent() {
           <SkeletonList rows={4} />
         ) : voiceLogs.length === 0 ? (
           <div className="bg-surface-low rounded-[2rem] p-16 text-center">
-            <p className="text-5xl mb-4">🎙</p>
+            <div className="mb-4"><MicIcon className="w-14 h-14 text-primary/30 mx-auto" /></div>
             <h3 className="text-xl font-bold text-primary mb-2">No voice logs yet</h3>
             <p className="text-stone-400 max-w-md mx-auto">
               Upload an audio recording and AI will transcribe it into a health log entry. Great for on-the-go tracking.
@@ -167,7 +168,7 @@ function VoicePageContent() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center text-xl flex-shrink-0">
-                      {log.status === "pending" ? "⏳" : log.status === "failed" ? "❌" : "🎙"}
+                      {log.status === "pending" ? <ClockIcon className="w-6 h-6 text-secondary" /> : log.status === "failed" ? <CheckIcon className="w-6 h-6 text-error" /> : <MicIcon className="w-6 h-6 text-primary" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">

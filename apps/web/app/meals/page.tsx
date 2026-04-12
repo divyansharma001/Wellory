@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { ToastProvider, useToast } from "../components/Toast";
 import { SkeletonList } from "../components/Skeleton";
+import { SunriseIcon, SunIcon, MoonIcon, AppleIcon, MealsIcon, CameraIcon, NoteIcon, ChevronDownIcon } from "../components/Icons";
 
 function fmt(value?: number | null, suffix = "") {
   if (value === null || value === undefined || Number.isNaN(value)) return "--";
@@ -20,13 +21,13 @@ function mealLabel(type?: MealType | null) {
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-function mealIcon(type?: MealType | null) {
+function MealIcon({ type, className = "w-6 h-6 text-primary" }: { type?: MealType | null; className?: string }) {
   switch (type) {
-    case "breakfast": return "🌅";
-    case "lunch": return "☀️";
-    case "dinner": return "🌙";
-    case "snack": return "🍎";
-    default: return "🍽";
+    case "breakfast": return <SunriseIcon className={className} />;
+    case "lunch": return <SunIcon className={className} />;
+    case "dinner": return <MoonIcon className={className} />;
+    case "snack": return <AppleIcon className={className} />;
+    default: return <MealsIcon className={className} />;
   }
 }
 
@@ -268,10 +269,10 @@ function MealsContent() {
             </div>
             <div className="flex gap-3">
               <button onClick={() => setModalMode("photo")} className="px-6 py-3 rounded-full bg-primary-gradient text-white font-bold text-sm shadow-lg shadow-primary/20 hover:translate-y-[-1px] transition-all">
-                📸 Photo Log
+                <CameraIcon className="w-4 h-4" /> Photo Log
               </button>
               <button onClick={() => setModalMode("manual")} className="px-6 py-3 rounded-full bg-surface-highest text-primary font-bold text-sm hover:bg-surface-high transition-all">
-                ✏️ Manual Entry
+                <NoteIcon className="w-4 h-4" /> Manual Entry
               </button>
             </div>
           </div>
@@ -317,7 +318,7 @@ function MealsContent() {
           <SkeletonList rows={4} />
         ) : Object.keys(grouped).length === 0 ? (
           <div className="bg-surface-low rounded-[2rem] p-16 text-center">
-            <p className="text-5xl mb-4">🍽</p>
+            <div className="mb-4"><MealsIcon className="w-14 h-14 text-primary/30 mx-auto" /></div>
             <h3 className="text-xl font-bold text-primary mb-2">No meals yet</h3>
             <p className="text-stone-400 max-w-md mx-auto">
               Start logging your meals by taking a photo or adding a manual entry.
@@ -343,7 +344,7 @@ function MealsContent() {
                               <img src={createApiClient(window.location.origin).resolveAssetUrl(log.imageUrl) ?? ""} alt={log.title ?? "Meal"} className="w-full h-full object-cover" />
                             </div>
                           ) : (
-                            <div className="w-16 h-16 rounded-2xl bg-surface-low flex items-center justify-center text-2xl flex-shrink-0">{mealIcon(log.mealType)}</div>
+                            <div className="w-16 h-16 rounded-2xl bg-surface-low flex items-center justify-center flex-shrink-0"><MealIcon type={log.mealType} className="w-7 h-7 text-primary/60" /></div>
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
@@ -354,7 +355,7 @@ function MealsContent() {
                             <div className="flex items-center gap-3 text-xs text-stone-400">
                               <span className="font-bold">{mealLabel(log.mealType)}</span>
                               <span>{timeAgo(log.createdAt)}</span>
-                              {log.entryMode === "photo" && <span className="text-primary/50">📸 Photo</span>}
+                              {log.entryMode === "photo" && <span className="text-primary/50 flex items-center gap-1"><CameraIcon className="w-3 h-3" /> Photo</span>}
                             </div>
                           </div>
                           <div className="hidden md:flex items-center gap-6 text-right flex-shrink-0">
@@ -372,9 +373,7 @@ function MealsContent() {
                               </div>
                             ))}
                           </div>
-                          <svg className={`w-5 h-5 text-stone-300 transition-transform flex-shrink-0 ${expandedId === log.id ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                          </svg>
+                          <ChevronDownIcon className={`w-5 h-5 text-stone-300 transition-transform flex-shrink-0 ${expandedId === log.id ? "rotate-180" : ""}`} />
                         </div>
                         {/* Mobile macros */}
                         <div className="md:hidden flex gap-4 mt-4">
@@ -547,7 +546,7 @@ function MealsContent() {
               </div>
             ) : (
               <button onClick={() => fileInputRef.current?.click()} className="w-full h-52 rounded-2xl bg-surface-low flex flex-col items-center justify-center gap-3 mb-6 hover:bg-surface-high transition-colors">
-                <span className="text-4xl">📸</span>
+                <CameraIcon className="w-10 h-10 text-stone-400" />
                 <span className="text-sm font-bold text-stone-400">Tap to select a photo</span>
               </button>
             )}

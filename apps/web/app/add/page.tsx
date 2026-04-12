@@ -8,14 +8,15 @@ import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import { ToastProvider, useToast } from "../components/Toast";
 import { PageLoader } from "../components/Skeleton";
+import { WaterIcon, ExerciseIcon, WeightIcon, NoteIcon } from "../components/Icons";
 
 type EntryMode = "water" | "exercise" | "weight" | "log";
 
-const MODES: { key: EntryMode; icon: string; label: string; color: string }[] = [
-  { key: "water", icon: "💧", label: "Water", color: "bg-primary-fixed" },
-  { key: "exercise", icon: "⚡", label: "Exercise", color: "bg-secondary-fixed" },
-  { key: "weight", icon: "⚖️", label: "Weight", color: "bg-surface-highest" },
-  { key: "log", icon: "📝", label: "Note", color: "bg-primary-fixed" },
+const MODES: { key: EntryMode; icon: React.ReactNode; label: string; color: string }[] = [
+  { key: "water", icon: <WaterIcon className="w-6 h-6" />, label: "Water", color: "bg-primary-fixed" },
+  { key: "exercise", icon: <ExerciseIcon className="w-6 h-6" />, label: "Exercise", color: "bg-secondary-fixed" },
+  { key: "weight", icon: <WeightIcon className="w-6 h-6" />, label: "Weight", color: "bg-surface-highest" },
+  { key: "log", icon: <NoteIcon className="w-6 h-6" />, label: "Note", color: "bg-primary-fixed" },
 ];
 
 const WATER_PRESETS = [100, 200, 250, 330, 500, 750];
@@ -122,7 +123,7 @@ function AddContent() {
                 mode === m.key ? "bg-white/80 text-primary shadow-sm scale-[1.03]" : "bg-surface-low text-stone-400 hover:text-primary"
               }`}
             >
-              <div className={`w-12 h-12 rounded-xl ${m.color} flex items-center justify-center text-xl`}>{m.icon}</div>
+              <div className={`w-12 h-12 rounded-xl ${m.color} flex items-center justify-center text-primary`}>{m.icon}</div>
               <span className="text-xs font-bold tracking-wider uppercase">{m.label}</span>
             </button>
           ))}
