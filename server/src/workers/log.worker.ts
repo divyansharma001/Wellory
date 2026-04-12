@@ -12,12 +12,12 @@ import { getTodayDateString, UUID_NAMESPACE } from "../utils/helpers.js";
 export const logWorker = new Worker(
   "log-processing",
   async (job) => {
-    const { logId, userId, text } = job.data;
-    
+    const { logId, userId, text, geminiApiKey } = job.data;
+
     try {
       logger.worker("Processing log", String(job.id), { logId, userId });
 
-      const logVector = await aiService.generateEmbedding(text);
+      const logVector = await aiService.generateEmbedding(text, geminiApiKey);
       await vectorService.upsertPoint(vectorService.LOGS_COLLECTION, logId, logVector, {
         text: text,
         userId: userId,
@@ -26,14 +26,14 @@ export const logWorker = new Worker(
       });
 
       logger.worker("Extracting facts", String(job.id), { logId, userId });
-      const facts = await aiService.extractFacts(text);
+      const facts = await aiService.extractFacts(text, geminiApiKey);
 
       if (facts.length > 0) {
         logger.info("Extracted facts from health log", { logId, userId, factsCount: facts.length });
       
         for (const fact of facts) {
             const factId = uuidv4();
-            const factVector = await aiService.generateEmbedding(fact);
+            const factVector = await aiService.generateEmbedding(fact, geminiApiKey);
             
             await vectorService.upsertPoint(vectorService.FACTS_COLLECTION, factId, factVector, {
                 text: fact,
@@ -57,10 +57,10 @@ export const logWorker = new Worker(
       const existingPoint = await vectorService.getPoint(vectorService.SUMMARIES_COLLECTION, deterministicId);
       const currentSummaryText = existingPoint?.payload?.text as string || null;
 
-      const updatedSummary = await aiService.updateDailySummary(currentSummaryText, text);
+      const updatedSummary = await aiService.updateDailySummary(currentSummaryText, text, geminiApiKey);
       logger.debug("Daily summary updated", { logId, userId, date: today });
 
-      const summaryVector = await aiService.generateEmbedding(updatedSummary);
+      const summaryVector = await aiService.generateEmbedding(updatedSummary, geminiApiKey);
       
       await vectorService.upsertPoint(vectorService.SUMMARIES_COLLECTION, deterministicId, summaryVector, {
         text: updatedSummary,

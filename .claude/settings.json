@@ -8,7 +8,10 @@
       "Bash(node -e \"const p=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const j=JSON.parse\\(p\\); console.log\\(''''version:'''', j.version\\)\")",
       "Bash(node -e \"console.log\\(require\\(''c:/health-tracker/node_modules/react-native/package.json''\\).version\\)\")",
       "Bash(npm ls:*)",
-      "Bash(npm --version)"
+      "Bash(npm --version)",
+      "Bash(find /c/health-tracker -name .babelrc* -o -name jest.config.* -o -name vite.config.*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

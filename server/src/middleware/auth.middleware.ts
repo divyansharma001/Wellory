@@ -29,6 +29,11 @@ export async function requireAuth(
     };
     authenticatedRequest.requestId = uuidv4();
 
+    const userGeminiKey = req.headers["x-gemini-api-key"];
+    if (typeof userGeminiKey === "string" && userGeminiKey.length > 0) {
+      authenticatedRequest.geminiApiKey = userGeminiKey;
+    }
+
     next();
   } catch (error) {
     next(error);

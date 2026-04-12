@@ -17,7 +17,7 @@ chatRouter.post(
     try {
       const { message } = req.body;
       const authReq = req as AuthenticatedRequest;
-      const context = await buildChatContext(authReq.user.id, message);
+      const context = await buildChatContext(authReq.user.id, message, authReq.geminiApiKey);
 
       logger.info("Processing chat request", {
         requestId: authReq.requestId,
@@ -50,6 +50,7 @@ chatRouter.post(
       const answer = await aiService.generateVerifiedResponse(
         systemPrompt,
         context.combinedContextForVerifier,
+        authReq.geminiApiKey,
       );
 
       res.json({

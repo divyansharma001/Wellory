@@ -32,6 +32,7 @@ logsRouter.post(
         logId,
         userId: authReq.user.id,
         text: content,
+        geminiApiKey: authReq.geminiApiKey,
       });
 
       logger.info("Queued health log", {

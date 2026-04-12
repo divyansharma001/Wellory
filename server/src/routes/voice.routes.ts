@@ -51,6 +51,7 @@ voiceRouter.post(
         userId: authReq.user.id,
         audioPath: file.path,
         mimeType: file.mimetype,
+        geminiApiKey: authReq.geminiApiKey,
       });
 
       logger.info("Queued voice log", {

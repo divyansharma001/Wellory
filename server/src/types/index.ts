@@ -10,6 +10,7 @@ export interface AuthenticatedUser {
 export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
   requestId: string;
+  geminiApiKey?: string;
 }
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -139,6 +140,7 @@ export interface LogJobData {
   logId: string;
   userId: string;
   text: string;
+  geminiApiKey?: string;
 }
 
 export interface DetectedFood {
@@ -167,6 +169,7 @@ export interface FoodLogJobData {
   userId: string;
   imagePath: string;
   mimeType: string;
+  geminiApiKey?: string;
 }
 
 export interface FoodLogRevisionPayload extends FoodAnalysisResult {
@@ -184,6 +187,7 @@ export interface VoiceLogJobData {
   userId: string;
   audioPath: string;
   mimeType: string;
+  geminiApiKey?: string;
 }
 
 export type GoalType = "lose" | "maintain" | "gain";

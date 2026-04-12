@@ -1,8 +1,63 @@
+"use client";
+
+import { useState } from "react";
+import { createApiClient } from "@health-tracker/api-client";
+
+type AuthMode = "sign_in" | "sign_up";
+
 export default function HomePage() {
+  const [authMode, setAuthMode] = useState<AuthMode>("sign_in");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    if (authMode === "sign_up" && !name.trim()) {
+      setError("Name is required for sign up.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const client = createApiClient(window.location.origin, { credentials: "include" });
+
+      if (authMode === "sign_up") {
+        await client.signUp({ email: trimmedEmail, password: trimmedPassword, name: name.trim() });
+      } else {
+        await client.signIn({ email: trimmedEmail, password: trimmedPassword });
+      }
+
+      // On success, redirect to dashboard (or reload for now)
+      window.location.href = "/dashboard";
+    } catch {
+      setError(
+        authMode === "sign_up"
+          ? "Sign up failed. This email may already be registered."
+          : "Invalid email or password. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="auth-shell">
       <section className="auth-hero">
-        <div className="brand-lockup">The Editorial Sanctuary</div>
+        <div className="brand-lockup">Wellory</div>
 
         <div className="hero-copy">
           <p className="hero-kicker">Restorative wellness, curated daily.</p>
@@ -33,56 +88,74 @@ export default function HomePage() {
       </section>
 
       <section className="auth-panel">
-        <div className="brand-lockup brand-lockup-mobile">The Editorial Sanctuary</div>
+        <div className="brand-lockup brand-lockup-mobile">Wellory</div>
 
         <div className="auth-content">
           <div className="auth-tabs" aria-label="Authentication mode">
-            <button className="auth-tab auth-tab-active" type="button">
+            <button
+              className={`auth-tab ${authMode === "sign_in" ? "auth-tab-active" : ""}`}
+              onClick={() => { setAuthMode("sign_in"); setError(null); }}
+              type="button"
+            >
               Sign In
             </button>
-            <button className="auth-tab" type="button">
+            <button
+              className={`auth-tab ${authMode === "sign_up" ? "auth-tab-active" : ""}`}
+              onClick={() => { setAuthMode("sign_up"); setError(null); }}
+              type="button"
+            >
               Sign Up
             </button>
           </div>
 
-          <div className="auth-actions">
-            <button className="social-button" type="button">
-              <span className="social-icon" aria-hidden="true">
-                A
-              </span>
-              <span>Continue with Apple</span>
-            </button>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {authMode === "sign_up" && (
+              <label className="field">
+                <span>Full Name</span>
+                <input
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  type="text"
+                  value={name}
+                />
+              </label>
+            )}
 
-            <button className="social-button" type="button">
-              <span className="social-icon" aria-hidden="true">
-                G
-              </span>
-              <span>Continue with Google</span>
-            </button>
-          </div>
-
-          <div className="auth-divider" aria-hidden="true">
-            <span />
-            <p>Or with email</p>
-            <span />
-          </div>
-
-          <form className="auth-form">
             <label className="field">
               <span>Email Address</span>
-              <input placeholder="name@example.com" type="email" />
+              <input
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                type="email"
+                value={email}
+              />
             </label>
 
             <label className="field">
               <div className="field-heading">
                 <span>Password</span>
-                <a href="/">Forgot?</a>
+                {authMode === "sign_in" && <a href="/">Forgot?</a>}
               </div>
-              <input placeholder="••••••••" type="password" />
+              <input
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                type="password"
+                value={password}
+              />
             </label>
 
-            <button className="primary-button" type="submit">
-              Enter Sanctuary
+            {error && (
+              <p style={{ color: "#b04040", fontSize: "0.9rem", margin: "0.5rem 0 0", lineHeight: 1.5 }}>
+                {error}
+              </p>
+            )}
+
+            <button className="primary-button" disabled={loading} type="submit">
+              {loading
+                ? "Please wait..."
+                : authMode === "sign_in"
+                  ? "Sign In"
+                  : "Create Account"}
             </button>
           </form>
 

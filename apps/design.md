@@ -1,4 +1,4 @@
-# Design System Strategy: The Editorial Sanctuary
+# Design System Strategy: Wellory
 
 ## 1. Overview & Creative North Star
 **Creative North Star: "The Restorative Gallery"**
@@ -28,12 +28,12 @@ Main CTAs and health rings should utilize a subtle linear gradient from `primary
 
 ---
 
-## 3. Typography: The Editorial Voice
+## 3. Typography: The Wellory Voice
 
 We utilize **Manrope** for its sophisticated balance of geometric clarity and humanist warmth.
 
 * **Display (Large/Medium):** Used for daily summaries or motivational headlines. These should use tight letter-spacing (-0.02em) to feel authoritative and premium.
-* **Headline (Small):** Used for section headers. Always pair these with generous top-padding (Spacing 12 or 16) to ensure the "Editorial Sanctuary" feel.
+* **Headline (Small):** Used for section headers. Always pair these with generous top-padding (Spacing 12 or 16) to ensure the "Wellory" feel.
 * **Body (Large/Medium):** The workhorse for health insights. Set at 1.5x line height to ensure maximum readability and a relaxed pace.
 * **Label (Medium/Small):** Used for micro-data (e.g., "BPM" or "Steps"). These can be set in uppercase with +0.05em letter spacing to provide a "technical yet elegant" contrast to the fluid headlines.
 

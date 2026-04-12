@@ -1,6 +1,6 @@
-# Health Tracker
+# Wellory
 
-A full-stack, AI-powered health tracking platform built as an npm workspaces monorepo. Combines real-time nutrition coaching, semantic memory via vector embeddings, and asynchronous media processing across web, mobile, and server targets.
+A full-stack, AI-powered wellness tracking platform built as an npm workspaces monorepo. Combines real-time nutrition coaching, semantic memory via vector embeddings, and asynchronous media processing across web, mobile, and server targets.
 
 ## Architecture Overview
 

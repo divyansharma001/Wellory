@@ -8,8 +8,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "The Editorial Sanctuary | Sign In",
-  description: "Editorial-inspired wellness sign-in experience for Health Tracker.",
+  title: "Wellory | Welcome",
+  description: "AI-powered wellness tracking by Wellory.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

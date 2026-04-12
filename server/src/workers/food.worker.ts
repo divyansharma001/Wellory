@@ -14,13 +14,13 @@ import { logger } from "../utils/logger.js";
 export const foodWorker = new Worker(
   "food-processing",
   async (job) => {
-    const { foodLogId, userId, imagePath, mimeType } = job.data;
+    const { foodLogId, userId, imagePath, mimeType, geminiApiKey } = job.data;
 
     try {
       logger.worker("Processing food log", String(job.id), { foodLogId, userId });
 
       const imageBuffer = await fs.readFile(imagePath);
-      const analysis = await aiService.analyzeFood(imageBuffer, mimeType);
+      const analysis = await aiService.analyzeFood(imageBuffer, mimeType, geminiApiKey);
 
       const [existing] = await db.select().from(foodLog).where(eq(foodLog.id, foodLogId)).limit(1);
 

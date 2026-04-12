@@ -8,21 +8,30 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is missing in environment variables");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Default singleton client (server key)
+const defaultGenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+function getClient(apiKey?: string): GoogleGenerativeAI {
+  if (apiKey) {
+    return new GoogleGenerativeAI(apiKey);
+  }
+  return defaultGenAI;
+}
 
-const embeddingModel = genAI.getGenerativeModel({ model: config.gemini.embeddingModel });
-const chatModel = genAI.getGenerativeModel({ model: config.gemini.chatModel });
+function getEmbeddingModel(apiKey?: string) {
+  return getClient(apiKey).getGenerativeModel({ model: config.gemini.embeddingModel });
+}
 
-const factExtractionModel = genAI.getGenerativeModel({ 
+function getChatModel(apiKey?: string) {
+  return getClient(apiKey).getGenerativeModel({ model: config.gemini.chatModel });
+}
+
+function getJsonModel(apiKey?: string) {
+  return getClient(apiKey).getGenerativeModel({
     model: config.gemini.chatModel,
-    generationConfig: { responseMimeType: "application/json" }
-});
-
-const foodAnalysisModel = genAI.getGenerativeModel({
-  model: config.gemini.chatModel,
-  generationConfig: { responseMimeType: "application/json" },
-});
+    generationConfig: { responseMimeType: "application/json" },
+  });
+}
 
 const FOOD_ANALYSIS_PROMPT = `
 Analyze this meal photo and return strict JSON only.
@@ -65,56 +74,49 @@ Rules:
 `;
 
 export const aiService = {
-  
-   // Converts text into a vector array (3072 dimensions)
-   
-  async generateEmbedding(text: string): Promise<number[]> {
+
+  async generateEmbedding(text: string, apiKey?: string): Promise<number[]> {
     try {
-      const result = await embeddingModel.embedContent(text);
-      const embedding = result.embedding;
-      return embedding.values;
+      const result = await getEmbeddingModel(apiKey).embedContent(text);
+      return result.embedding.values;
     } catch (error) {
       logger.error("Error generating embedding", error instanceof Error ? error : undefined);
       throw new AIServiceError("Failed to generate embedding");
     }
   },
 
-  // Generates a text response based on a prompt
-
-  async generateResponse(prompt: string): Promise<string> {
+  async generateResponse(prompt: string, apiKey?: string): Promise<string> {
     try {
-      const result = await chatModel.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const result = await getChatModel(apiKey).generateContent(prompt);
+      return result.response.text();
     } catch (error) {
       logger.error("Error generating response", error instanceof Error ? error : undefined);
       throw new AIServiceError("Failed to generate response");
     }
   },
 
-  async extractFacts(text: string): Promise<string[]> {
+  async extractFacts(text: string, apiKey?: string): Promise<string[]> {
     const prompt = `
     Analyze the following health tracker log entry.
     Extract distinct, atomic facts about the user's diet, nutrition, calorie intake, exercise, symptoms, sleep patterns, food sensitivities, hydration, or recurring health responses.
     Ignore generic statements. Focus on specific health-relevant cause-and-effect, tolerances, triggers, routines, and repeatable patterns.
-    
+
     Log: "${text}"
-    
+
     Output a JSON list of strings.
     Example: ["User feels bloated after dairy", "User tolerates almonds well", "User usually eats a high-protein breakfast", "User slept poorly after late caffeine"]
     `;
 
     try {
-      const result = await factExtractionModel.generateContent(prompt);
-      const responseText = result.response.text();
-      return JSON.parse(responseText) as string[]; 
+      const result = await getJsonModel(apiKey).generateContent(prompt);
+      return JSON.parse(result.response.text()) as string[];
     } catch (error) {
       logger.error("Error extracting facts", error instanceof Error ? error : undefined);
-      return []; 
+      return [];
     }
   },
 
-  async updateDailySummary(currentSummary: string | null, newLogEntry: string): Promise<string> {
+  async updateDailySummary(currentSummary: string | null, newLogEntry: string, apiKey?: string): Promise<string> {
     let prompt = "";
 
     if (!currentSummary) {
@@ -127,13 +129,13 @@ export const aiService = {
     } else {
       prompt = `
       You are maintaining a daily health journal summary.
-      
+
       Current Summary of the day:
       "${currentSummary}"
-      
+
       New Health Event to add:
       "${newLogEntry}"
-      
+
       Task: Rewrite the Daily Summary so it flows naturally while incorporating the new health event.
       Keep it concise but capture meals, calorie-related details, exercise, symptoms, sleep, hydration, and overall wellbeing when relevant.
       Updated Summary:
@@ -141,7 +143,7 @@ export const aiService = {
     }
 
     try {
-      const result = await chatModel.generateContent(prompt);
+      const result = await getChatModel(apiKey).generateContent(prompt);
       return result.response.text();
     } catch (error) {
       logger.error("Error generating summary", error instanceof Error ? error : undefined);
@@ -149,9 +151,9 @@ export const aiService = {
     }
   },
 
-  async analyzeFood(imageBuffer: Buffer, mimeType: string): Promise<FoodAnalysisResult> {
+  async analyzeFood(imageBuffer: Buffer, mimeType: string, apiKey?: string): Promise<FoodAnalysisResult> {
     try {
-      const result = await foodAnalysisModel.generateContent([
+      const result = await getJsonModel(apiKey).generateContent([
         FOOD_ANALYSIS_PROMPT,
         {
           inlineData: {
@@ -168,9 +170,9 @@ export const aiService = {
     }
   },
 
-  async transcribeAudio(audioBuffer: Buffer, mimeType: string): Promise<string> {
+  async transcribeAudio(audioBuffer: Buffer, mimeType: string, apiKey?: string): Promise<string> {
     try {
-      const result = await chatModel.generateContent([
+      const result = await getChatModel(apiKey).generateContent([
         AUDIO_TRANSCRIPTION_PROMPT,
         {
           inlineData: {
@@ -187,36 +189,34 @@ export const aiService = {
     }
   },
 
-  // Chain of Verification 
-  async generateVerifiedResponse(originalPrompt: string, contextData: string): Promise<string> {
+  async generateVerifiedResponse(originalPrompt: string, contextData: string, apiKey?: string): Promise<string> {
     try {
-      // Generate the Draft (The "Writer")
-      const draftResult = await chatModel.generateContent(originalPrompt);
+      const model = getChatModel(apiKey);
+
+      const draftResult = await model.generateContent(originalPrompt);
       const draftAnswer = draftResult.response.text();
 
-      // Verify the Draft (The "Editor")
       const critiquePrompt = `
       You are a strict Fact-Checking Editor.
-      
+
       ### SOURCE DATA (The only truth):
       ${contextData}
-      
+
       ### DRAFT ANSWER:
       ${draftAnswer}
-      
+
       ### TASK:
       1. Verify if the Draft Answer contains any claims NOT supported by the Source Data.
       2. Verify if the tone is empathetic but objective.
-      
+
       ### OUTPUT INSTRUCTIONS:
       - If the Draft Answer is accurate based *only* on the Source Data, respond with exactly: "VALID"
       - If the Draft Answer contains hallucinations or is rude, rewrite the answer completely to be accurate.
       `;
 
-      const critiqueResult = await chatModel.generateContent(critiquePrompt);
+      const critiqueResult = await model.generateContent(critiquePrompt);
       const critiqueResponse = critiqueResult.response.text().trim();
 
-      // Logic: Return Draft or Correction
       if (critiqueResponse.toUpperCase().includes("VALID")) {
         logger.info("[CoVe] Draft verified successfully.");
         return draftAnswer;
@@ -227,8 +227,7 @@ export const aiService = {
 
     } catch (error) {
       logger.error("Error in verification chain", error instanceof Error ? error : undefined);
-      // Fallback: If verification fails, just return the first draft (better than nothing)
-      return this.generateResponse(originalPrompt);
+      return this.generateResponse(originalPrompt, apiKey);
     }
   }
 };

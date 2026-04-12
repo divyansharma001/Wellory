@@ -12,13 +12,13 @@ import { logger } from "../utils/logger.js";
 export const voiceWorker = new Worker(
   "voice-processing",
   async (job) => {
-    const { voiceLogId, userId, audioPath, mimeType } = job.data;
+    const { voiceLogId, userId, audioPath, mimeType, geminiApiKey } = job.data;
 
     try {
       logger.worker("Processing voice log", String(job.id), { voiceLogId, userId });
 
       const audioBuffer = await fs.readFile(audioPath);
-      const transcript = await aiService.transcribeAudio(audioBuffer, mimeType);
+      const transcript = await aiService.transcribeAudio(audioBuffer, mimeType, geminiApiKey);
       const logId = uuidv4();
 
       await db.insert(logEntry).values({
@@ -33,6 +33,7 @@ export const voiceWorker = new Worker(
         logId,
         userId,
         text: transcript,
+        geminiApiKey,
       });
 
       await db

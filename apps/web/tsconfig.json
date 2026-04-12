@@ -12,7 +12,10 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "allowJs": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
   },
   "include": [
     "**/*.ts",

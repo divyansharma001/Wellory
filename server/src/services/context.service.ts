@@ -25,8 +25,8 @@ type FactEntry = {
   polarity: number;
 };
 
-export async function buildChatContext(userId: string, message: string): Promise<ChatContext> {
-  const vector = await aiService.generateEmbedding(message);
+export async function buildChatContext(userId: string, message: string, apiKey?: string): Promise<ChatContext> {
+  const vector = await aiService.generateEmbedding(message, apiKey);
 
   const [factResults, logResults, todaySummary] = await Promise.all([
     vectorService.search(vectorService.FACTS_COLLECTION, vector, 5, userId),

@@ -154,6 +154,7 @@ foodRouter.post(
         userId: authReq.user.id,
         imagePath: file.path,
         mimeType: file.mimetype,
+        geminiApiKey: authReq.geminiApiKey,
       });
 
       logger.info("Queued food log", {

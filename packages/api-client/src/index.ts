@@ -18,6 +18,27 @@ import type {
   WeightLog,
 } from "@health-tracker/types";
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  image?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthSession {
+  id: string;
+  userId: string;
+  token: string;
+  expiresAt: string;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  session: AuthSession;
+}
+
 export interface ApiClientOptions {
   baseUrl: string;
   headers?: HeadersInit;
@@ -73,6 +94,22 @@ export class ApiClient {
 
   getHealth(): Promise<HealthResponse> {
     return this.request("/health");
+  }
+
+  signUp(payload: { email: string; password: string; name: string }): Promise<AuthResponse> {
+    return this.json("/api/auth/sign-up/email", "POST", payload);
+  }
+
+  signIn(payload: { email: string; password: string }): Promise<AuthResponse> {
+    return this.json("/api/auth/sign-in/email", "POST", payload);
+  }
+
+  signOut(): Promise<{ success: boolean }> {
+    return this.json("/api/auth/sign-out", "POST");
+  }
+
+  getSession(): Promise<{ session: AuthSession; user: AuthUser } | null> {
+    return this.request("/api/auth/get-session");
   }
 
   createLog(content: string): Promise<LogCreateResponse> {
@@ -207,5 +244,22 @@ export class ApiClient {
 }
 
 export function createApiClient(baseUrl: string, options?: Omit<ApiClientOptions, "baseUrl">) {
-  return new ApiClient({ baseUrl, ...options });
+  let extraHeaders: Record<string, string> = {};
+
+  // Inject user's Gemini API key from localStorage if available (browser only)
+  if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+    const geminiKey = localStorage.getItem("wellory_gemini_key");
+    if (geminiKey) {
+      extraHeaders["x-gemini-api-key"] = geminiKey;
+    }
+  }
+
+  return new ApiClient({
+    baseUrl,
+    ...options,
+    headers: {
+      ...extraHeaders,
+      ...(options?.headers as Record<string, string> ?? {}),
+    },
+  });
 }

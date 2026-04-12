@@ -1,4 +1,4 @@
-# Health Tracker API Docs
+# Wellory API Docs
 
 Base URL during local development: `http://localhost:3000`
 
